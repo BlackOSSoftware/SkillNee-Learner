@@ -7,6 +7,7 @@ import type {
   LoginInput,
   RegisterInput,
   ResetPasswordInput,
+  UpdateProfileInput,
   User,
 } from '@/types/auth';
 
@@ -32,6 +33,23 @@ export async function logout(): Promise<void> {
 
 export async function fetchMe(): Promise<User> {
   const res = await apiClient.get<ApiEnvelope<{ user: User }>>('/auth/me');
+  return res.data.data.user;
+}
+
+/**
+ * PUT /auth/me — always multipart so name fields and the optional photo share
+ * one request. The shared apiClient defaults to JSON; clearing Content-Type
+ * lets the browser set the multipart boundary (same pattern as submissions).
+ */
+export async function updateProfile(input: UpdateProfileInput): Promise<User> {
+  const form = new FormData();
+  if (input.firstName !== undefined) form.append('firstName', input.firstName);
+  if (input.lastName !== undefined) form.append('lastName', input.lastName);
+  if (input.photo) form.append('profileImage', input.photo);
+  if (input.removePhoto) form.append('removeProfileImage', 'true');
+  const res = await apiClient.put<ApiEnvelope<{ user: User }>>('/auth/me', form, {
+    headers: { 'Content-Type': undefined },
+  });
   return res.data.data.user;
 }
 

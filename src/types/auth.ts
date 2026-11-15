@@ -60,3 +60,13 @@ export interface ResetPasswordInput {
   token: string;
   password: string;
 }
+
+/** PUT /auth/me — only these fields are writable; email/phone are read-only. */
+export interface UpdateProfileInput {
+  firstName?: string;
+  lastName?: string;
+  /** New profile photo — uploaded to Cloudinary by the backend. */
+  photo?: File | null;
+  /** Remove the current profile photo. */
+  removePhoto?: boolean;
+}

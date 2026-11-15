@@ -10,12 +10,14 @@ import {
   logout,
   register,
   resetPassword,
+  updateProfile,
 } from '@/services/auth/auth.service';
 import type {
   ForgotPasswordInput,
   LoginInput,
   RegisterInput,
   ResetPasswordInput,
+  UpdateProfileInput,
 } from '@/types/auth';
 
 /** Current authenticated user. 401s are handled by the axios refresh interceptor. */
@@ -26,6 +28,17 @@ export function useMe(enabled = true) {
     enabled,
     staleTime: 60_000,
     retry: false,
+  });
+}
+
+/** PUT /auth/me — refreshes the shared auth.me cache so every screen sees the update. */
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: UpdateProfileInput) => updateProfile(input),
+    onSuccess: (user) => {
+      queryClient.setQueryData(queryKeys.auth.me, user);
+    },
   });
 }
 
